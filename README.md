@@ -1,7 +1,7 @@
-# CS3218
+# CS3218 Multimodal Processing in Mobile Platforms (Android Programming)
 CS3218 Tutorial (AY15-16)
 
-##Inclusive of:
+## This repo includes (will be updating as the semester goes):
 * Tutorial 1 Calculator
 * Tutorial 2 Graphing
 * Tutorial 3 Sound
