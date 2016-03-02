@@ -23,7 +23,9 @@
             android:name=".tutorial2"
             android:configChanges="orientation|screenSize|keyboardHidden" />
         <activity android:name=".tutorial3" />
-        <activity android:name=".tutorial4"></activity>
+        <activity android:name=".tutorial4" />
+        <activity android:name=".tutorial5a" />
+        <activity android:name=".tutorial5b"></activity>
     </application>
 
 </manifest>

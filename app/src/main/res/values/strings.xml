@@ -1,11 +1,8 @@
 <resources>
     <string name="app_name">CS3218Tut_YipJiajie</string>
-    <string name="calculator">SIMPLE CALCULATOR (TUTORIAL 1)</string>
-    <string name="graphing">GRAPHING (TUTORIAL 2)</string>
-    <string name="sound">SOUND (TUTORIAL 3)</string>
-    <string name="calculus">CALCULUS (TUTORIAL 4)</string>
 
     <!-- Tutorial 1 Simple Calculator -->
+    <string name="calculator">SIMPLE CALCULATOR (TUTORIAL 1)</string>
     <string name="default_textview">0</string>
 
     <string name="zero">0</string>
@@ -31,6 +28,7 @@
     <string name="allClear">AC</string>
 
     <!-- Tutorial 2 Graphing -->
+    <string name="graphing">GRAPHING (TUTORIAL 2)</string>
     <string name="sine">SINE</string>
     <string name="cosine">COSINE</string>
     <string name="Aplus">A+</string>
@@ -44,8 +42,19 @@
     <string name="title_activity_tutorial3">tutorial3</string>
 
     <!-- Tutorial 3 Sound -->
+    <string name="sound">SOUND (TUTORIAL 3)</string>
     <string name="capture_sound">Capture Sound</string>
     <string name="goToMainActivity">BACK TO MAIN</string>
+
+    <!-- Tutorial 4 Integration -->
+    <string name="calculus">CALCULUS (TUTORIAL 4)</string>
+
+    <!-- Tutorial 5A FFT -->
+    <string name="ffta">FFT (TUTORIAL 5A)</string>
+    <string name="fft">FFT</string>
+
+    <string name="fftb">LIVE FFT (TUTORIAL 5B)</string>
+    <string name="fftc">SPECTROGRAM (TUTORIAL 5C)</string>
 
 
 </resources>

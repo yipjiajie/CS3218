@@ -43,6 +43,29 @@ public class MainActivity extends Activity {
         startActivityForResult(myIntent, requestCode);
     }
 
+    public void onClick_FFTA(View view) {
+        int requestCode = 51;
+        Intent myIntent;
+        myIntent = new Intent(this, tutorial5a.class);
+        startActivityForResult(myIntent, requestCode);
+    }
+
+    public void onClick_FFTB(View view) {
+        int requestCode = 52;
+        Intent myIntent;
+        myIntent = new Intent(this, tutorial5b.class);
+        startActivityForResult(myIntent, requestCode);
+    }
+
+    public void onClick_FFTC(View view) {
+        int requestCode = 53;
+        Intent myIntent;
+        myIntent = new Intent(this, tutorial4.class);
+        startActivityForResult(myIntent, requestCode);
+    }
+
+
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -85,6 +108,25 @@ public class MainActivity extends Activity {
         if(requestCode==4) {
             if(resultCode==RESULT_OK) {
                 Toast.makeText(this, "Exited from Tutorial 4 Calculus", Toast.LENGTH_LONG).show();
+            }
+        }
+
+        // Tutorial 5 FFT
+        if(requestCode==51) {
+            if(resultCode==RESULT_OK) {
+                Toast.makeText(this, "Exited from Tutorial 5A FFT", Toast.LENGTH_LONG).show();
+            }
+        }
+
+        if(requestCode==52) {
+            if(resultCode==RESULT_OK) {
+                Toast.makeText(this, "Exited from Tutorial 5B Live FFT", Toast.LENGTH_LONG).show();
+            }
+        }
+
+        if(requestCode==53) {
+            if(resultCode==RESULT_OK) {
+                Toast.makeText(this, "Exited from Tutorial 5C Spectrogram", Toast.LENGTH_LONG).show();
             }
         }
     }

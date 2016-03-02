@@ -41,4 +41,28 @@
         android:id="@+id/buttonCalculus"
         android:onClick="onClick_Calculus"
         />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/ffta"
+        android:id="@+id/buttonFFTA"
+        android:onClick="onClick_FFTA"
+        />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/fftb"
+        android:id="@+id/buttonFFTB"
+        android:onClick="onClick_FFTB"
+        />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/fftc"
+        android:id="@+id/buttonFFTC"
+        android:onClick="onClick_FFTC"
+        />
 </LinearLayout>
