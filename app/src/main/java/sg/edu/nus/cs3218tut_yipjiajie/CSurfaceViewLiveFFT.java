@@ -16,7 +16,7 @@ import android.view.SurfaceView;
  * Created by ngtk on 4/2/16.
  */
 
-public class CSurfaceViewSoundSampling extends SurfaceView implements SurfaceHolder.Callback {
+public class CSurfaceViewLiveFFT extends SurfaceView implements SurfaceHolder.Callback {
 
     private Context drawContext;
     public  DrawThread       drawThread;
@@ -32,7 +32,7 @@ public class CSurfaceViewSoundSampling extends SurfaceView implements SurfaceHol
         }
     };
 
-    public CSurfaceViewSoundSampling(Context ctx, AttributeSet attributeSet)
+    public CSurfaceViewLiveFFT(Context ctx, AttributeSet attributeSet)
     {
         super(ctx, attributeSet);
 
@@ -115,6 +115,12 @@ public class CSurfaceViewSoundSampling extends SurfaceView implements SurfaceHol
         private SurfaceHolder  soundSurfaceHolder;
         private int            drawScale   = 8;
 
+        //
+        private double[]       soundFFT;
+        private double[]       soundFFTMag;
+        private double[]       soundFFTTemp;
+        private double         mxIntensity;
+
         public DrawThread(SurfaceHolder paramContext, Context paramHandler, Handler arg4)
         {
             soundSurfaceHolder = paramContext;
@@ -140,6 +146,11 @@ public class CSurfaceViewSoundSampling extends SurfaceView implements SurfaceHol
 
             soundSegmented     = new int[FFT_Len];
 
+            //
+            soundFFT           = new double[FFT_Len*2];
+            soundFFTMag        = new double[FFT_Len];
+            soundFFTTemp       = new double[FFT_Len*2];
+
         }
 
 
@@ -160,38 +171,31 @@ public class CSurfaceViewSoundSampling extends SurfaceView implements SurfaceHol
 
             paint.setColor(Color.BLACK);
             paint.setTextSize(20);
-            canvas.drawText("'Capture Sound' to see a snapshot of sound waveform", 250, 20, paint);
+            canvas.drawText("'Capture Sound' to see Live FFT", 250, 20, paint);
 
+            int xStart = 0;
+            while (xStart <  soundSegmented.length-1) {
 
-            if (!soundCapture) {
+                int yStart = soundBuffer[xStart] / height * drawScale;
+                int yStop  = soundBuffer[xStart+1] / height * drawScale;
 
-                int xStart = 0;
+                int yStart1 = yStart + height/4;
+                int yStop1  = yStop  + height/4;
 
-                // while (xStart < width -1)  {
+                canvas.drawLine(xStart, yStart1, xStart +1, yStop1, soundLinePaint2);
 
-                while (xStart < width-1) {
-
-                    int yStart = soundBuffer[xStart] / height * drawScale;
-                    int yStop  = soundBuffer[xStart+1] / height * drawScale;
-
-                    int yStart1 = yStart + height/4;
-                    int yStop1  = yStop  + height/4;
-
-                    canvas.drawLine(xStart, yStart1, xStart +1, yStop1, soundLinePaint2);
-
-                    if (xStart %100 == 0) {
-                        paint.setColor(Color.BLACK);
-                        paint.setTextSize(20);
-                        canvas.drawText(Integer.toString(xStart), xStart, height/2, paint);
-                        canvas.drawText(Integer.toString(yStop),  xStart, yStop1, paint);
-                    }
-
-                    xStart++;
-
+                if (xStart %100 == 0) {
+                    paint.setColor(Color.BLACK);
+                    paint.setTextSize(20);
+                    canvas.drawText(Integer.toString(xStart), xStart, height/2, paint);
+                    canvas.drawText(Integer.toString(yStop),  xStart, yStop1, paint);
                 }
 
+                xStart++;
 
-            } else if (soundCapture) {
+            }
+
+            if (soundCapture) {
 
                 if (segmentIndex < 0) {
                     segmentIndex = 0;
@@ -202,14 +206,13 @@ public class CSurfaceViewSoundSampling extends SurfaceView implements SurfaceHol
                 }
 
 
-                // display the signal in temporal domain
-                // --- fill in the codes here to display a snapshot of the sound waveform
+                // display the LIVE FFT
                 /******/
-                int xStart = 0;
+                xStart = 0;
 
                 // while (xStart < width -1)  {
 
-                while (xStart < width-1) {
+                while (xStart < soundSegmented.length-1) {
 
                     int yStart = soundSegmented[xStart] / height * drawScale + height/2;
                     int yStop = soundSegmented[xStart + 1] / height * drawScale + height/2;
@@ -217,7 +220,7 @@ public class CSurfaceViewSoundSampling extends SurfaceView implements SurfaceHol
                     int yStart1 = yStart + height / 4;
                     int yStop1 = yStop + height / 4;
 
-                    canvas.drawLine(xStart, yStart1, xStart + 1, yStop1, soundLinePaint2);
+                    canvas.drawLine(xStart, yStart1, xStart + 1, yStop1, soundLinePaint);
 
                     if (xStart % 100 == 0) {
                         paint.setColor(Color.BLACK);
@@ -228,8 +231,6 @@ public class CSurfaceViewSoundSampling extends SurfaceView implements SurfaceHol
 
                     xStart++;
                 }
-
-                /****/
 
             }
 
