@@ -12,6 +12,8 @@ import android.util.AttributeSet;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
+
 /**
  * Created by ngtk on 4/2/16.
  */
@@ -104,7 +106,7 @@ public class CSurfaceViewLiveFFT extends SurfaceView implements SurfaceHolder.Ca
         private Bitmap soundBackgroundImage;
         private short[]        soundBuffer;
         private int[]          soundSegmented;
-        public  Boolean        soundCapture = Boolean.valueOf(false);
+        public  Boolean        FFTComputed = Boolean.valueOf(false);
         public  int            FFT_Len      = 1024;
         public  int            segmentIndex = -1;
         private int            soundCanvasHeight = 0;
@@ -195,43 +197,86 @@ public class CSurfaceViewLiveFFT extends SurfaceView implements SurfaceHolder.Ca
 
             }
 
-            if (soundCapture) {
+            if (FFTComputed) {
 
-                if (segmentIndex < 0) {
-                    segmentIndex = 0;
-                    while (segmentIndex < FFT_Len) {
-                        soundSegmented[segmentIndex] = soundBuffer[segmentIndex];
-                        segmentIndex++;
-                    }
+                segmentIndex = 0;
+                while (segmentIndex < FFT_Len) {
+                    soundSegmented[segmentIndex] = soundBuffer[segmentIndex];
+                    soundFFT[2 * segmentIndex] = (double) soundSegmented[segmentIndex];
+                    soundFFT[2 * segmentIndex + 1] = 0.0;
+                    segmentIndex++;
                 }
 
+                // fft
+                DoubleFFT_1D fft = new DoubleFFT_1D(FFT_Len);
+                fft.complexForward(soundFFT);
+                FFTComputed = Boolean.valueOf(true);
 
-                // display the LIVE FFT
-                /******/
+                // perform fftshift here
+                for (int i = 0; i < FFT_Len; i++) {
+                    soundFFTTemp[i] = soundFFT[i + FFT_Len];
+                    soundFFTTemp[i + FFT_Len] = soundFFT[i];
+                }
+                for (int i = 0; i < FFT_Len * 2; i++) {
+                    soundFFT[i] = soundFFTTemp[i];
+                }
+
+                double mx = -99999;
+                for (int i = 0; i < FFT_Len; i++) {
+                    double re = soundFFT[2 * i];
+                    double im = soundFFT[2 * i + 1];
+                    soundFFTMag[i] = Math.log(re * re + im * im + 0.001);
+                    if (soundFFTMag[i] > mx) mx = soundFFTMag[i];
+                }
+
+                // normalize
+                for (int i = 0; i < FFT_Len; i++) {
+                    soundFFTMag[i] = height * 4 / 5 - soundFFTMag[i] / mx * 500;
+                }
+
+                mxIntensity = mx;
+
+                FFTComputed = Boolean.valueOf(true);
+
+
+                // print the maximum intensity
+                paint.setColor(Color.BLACK);
+                paint.setTextSize(30);
+                canvas.drawText("max Intensity = " + String.valueOf(mxIntensity), 100, height - 30, paint);
+
+                // display the signal in temporal domain
                 xStart = 0;
-
-                // while (xStart < width -1)  {
-
-                while (xStart < soundSegmented.length-1) {
-
-                    int yStart = soundSegmented[xStart] / height * drawScale + height/2;
-                    int yStop = soundSegmented[xStart + 1] / height * drawScale + height/2;
+                while (xStart < FFT_Len - 1) {
+                    int yStart = soundSegmented[xStart] / height * drawScale;
+                    int yStop = soundSegmented[xStart + 1] / height * drawScale;
 
                     int yStart1 = yStart + height / 4;
                     int yStop1 = yStop + height / 4;
 
-                    canvas.drawLine(xStart, yStart1, xStart + 1, yStop1, soundLinePaint);
+                    canvas.drawLine(xStart, yStart1, xStart + 1, yStop1, soundLinePaint2);
 
                     if (xStart % 100 == 0) {
                         paint.setColor(Color.BLACK);
                         paint.setTextSize(20);
-                        canvas.drawText(Integer.toString(xStart), xStart, height / 2, paint);
-                        canvas.drawText(Integer.toString(yStop), xStart, yStop1, paint);
                     }
-
                     xStart++;
                 }
 
+
+                // display the fft results
+                int xStepSz = 1;
+                // draw the vertical axis (at DC location)
+                canvas.drawLine(FFT_Len / 2, height, FFT_Len / 2, 0, soundLinePaint3);
+                for (int i = 0; i < FFT_Len - 1; i += xStepSz) {
+                    canvas.drawLine(i / xStepSz, (int) soundFFTMag[i], i / xStepSz + 1, (int) soundFFTMag[i + 1], soundLinePaint);
+
+                    if ((i - 12) % 50 == 0) {
+                        paint.setColor(Color.BLACK);
+                        paint.setTextSize(20);
+                        canvas.drawText(Integer.toString(i - FFT_Len / 2), i, height * 7 / 8, paint);
+                    }
+
+                }
             }
 
         }

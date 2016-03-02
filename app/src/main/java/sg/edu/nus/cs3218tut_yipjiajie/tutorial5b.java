@@ -52,12 +52,12 @@ public class tutorial5b extends Activity {
 
 
     public void captureSoundLiveFFT(View v) {
-        if (surfaceView.drawThread.soundCapture) {
-            surfaceView.drawThread.soundCapture = Boolean.valueOf(false);
+        if (surfaceView.drawThread.FFTComputed) {
+            surfaceView.drawThread.FFTComputed = Boolean.valueOf(false);
             surfaceView.drawThread.segmentIndex = -1;
         }
         else {
-            surfaceView.drawThread.soundCapture = Boolean.valueOf(true);
+            surfaceView.drawThread.FFTComputed = Boolean.valueOf(true);
 
         }
     }
