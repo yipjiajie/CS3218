@@ -60,7 +60,7 @@ public class MainActivity extends Activity {
     public void onClick_FFTC(View view) {
         int requestCode = 53;
         Intent myIntent;
-        myIntent = new Intent(this, tutorial4.class);
+        myIntent = new Intent(this, tutorial5c.class);
         startActivityForResult(myIntent, requestCode);
     }
 
