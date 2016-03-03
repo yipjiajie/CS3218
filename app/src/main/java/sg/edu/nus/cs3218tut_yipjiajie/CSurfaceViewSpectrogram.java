@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
+import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
@@ -25,6 +26,7 @@ public class CSurfaceViewSpectrogram extends SurfaceView implements SurfaceHolde
     private SurfaceHolder    drawSurfaceHolder;
     private Boolean          threadExists = false;
     public static volatile Boolean drawFlag = false;
+    private static int rectPos = 0;
 
 
     private static final Handler handler = new Handler(){
@@ -173,7 +175,7 @@ public class CSurfaceViewSpectrogram extends SurfaceView implements SurfaceHolde
 
             paint.setColor(Color.BLACK);
             paint.setTextSize(20);
-            canvas.drawText("'Capture Sound' to see Live FFT", 250, 20, paint);
+            canvas.drawText("'Capture Sound' to see Spectrogram", 250, 20, paint);
 
             int xStart = 0;
             while (xStart <  soundSegmented.length-1) {
@@ -277,6 +279,7 @@ public class CSurfaceViewSpectrogram extends SurfaceView implements SurfaceHolde
                     }
 
                 }
+                rectPos = (rectPos % 1150) + 1;
             }
 
         }
@@ -311,7 +314,7 @@ public class CSurfaceViewSpectrogram extends SurfaceView implements SurfaceHolde
                 Canvas localCanvas = null;
                 try
                 {
-                    localCanvas = soundSurfaceHolder.lockCanvas(null);
+                    localCanvas = soundSurfaceHolder.lockCanvas(new Rect(rectPos, 0, rectPos+1, 1150));
                     synchronized (soundSurfaceHolder)
                     {
                         if (localCanvas != null)
