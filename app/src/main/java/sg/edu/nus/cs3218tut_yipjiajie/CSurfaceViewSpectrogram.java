@@ -262,7 +262,8 @@ public class CSurfaceViewSpectrogram extends SurfaceView implements SurfaceHolde
                     xStart++;
                 }
 
-                // mapping values of soundFFT mag into smaller array size of 256
+                // mapping values of soundFFT mag into smaller array size of 256 (to display the colors correctly)
+                // Essentially it is to normalize the values to fit in the heatmap
                 double[] mappedSoundFFT;
                 int size = FFT_Len/4;
                 mappedSoundFFT = new double[size];
@@ -276,7 +277,7 @@ public class CSurfaceViewSpectrogram extends SurfaceView implements SurfaceHolde
                     }
                 }
                 
-                // find new values of min and max intensity based on mapped array
+                // find new values of min and max intensity based on normalized values
                 minIntensity = maxIntensity = mappedSoundFFT[0];
                 for(int i=1;i<size;i++){
                     if(mappedSoundFFT[i] > maxIntensity)
@@ -286,7 +287,7 @@ public class CSurfaceViewSpectrogram extends SurfaceView implements SurfaceHolde
                 }
                 
                 int value = 0;
-                // plots the spectrum of a audio signal
+                // plot the spectrogram heat map
                 for (int i=0;i<size-1;i++){
                     value = (int)((mappedSoundFFT[i]-minIntensity)/(maxIntensity-minIntensity)*510);
                     if(value <= 255){
