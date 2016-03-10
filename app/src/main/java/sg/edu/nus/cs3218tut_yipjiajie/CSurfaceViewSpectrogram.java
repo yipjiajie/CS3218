@@ -116,6 +116,7 @@ public class CSurfaceViewSpectrogram extends SurfaceView implements SurfaceHolde
         private Paint soundLinePaint;
         private Paint		   soundLinePaint2;
         private Paint          soundLinePaint3;
+        private Paint          spectrogramPaint;
         private SurfaceHolder  soundSurfaceHolder;
         private int            drawScale   = 8;
 
@@ -123,7 +124,8 @@ public class CSurfaceViewSpectrogram extends SurfaceView implements SurfaceHolde
         private double[]       soundFFT;
         private double[]       soundFFTMag;
         private double[]       soundFFTTemp;
-        private double         mxIntensity;
+        private double         maxIntensity;
+        private double         minIntensity;
 
         public DrawThread(SurfaceHolder paramContext, Context paramHandler, Handler arg4)
         {
@@ -142,6 +144,10 @@ public class CSurfaceViewSpectrogram extends SurfaceView implements SurfaceHolde
             soundLinePaint3.setAntiAlias(true);
             soundLinePaint3.setARGB(255, 0, 255, 255);
             soundLinePaint3.setStrokeWidth(3);
+
+            spectrogramPaint 	= new Paint();
+            spectrogramPaint.setAntiAlias(true);
+            spectrogramPaint.setStrokeWidth(4);
 
             soundBuffer        = new short[2048];
 
@@ -167,6 +173,8 @@ public class CSurfaceViewSpectrogram extends SurfaceView implements SurfaceHolde
 
             int height         = soundCanvasHeight;
             int width          = soundCanvasWidth;
+
+            int intensityFFT   = 0;		// used to determine the intensities of the fft
 
             Paint paint = new Paint();
             paint.setColor(Color.YELLOW);
@@ -200,7 +208,6 @@ public class CSurfaceViewSpectrogram extends SurfaceView implements SurfaceHolde
             }
 
             if (captureSpectrogram) {
-
                 segmentIndex = 0;
                 while (segmentIndex < FFT_Len) {
                     soundSegmented[segmentIndex] = soundBuffer[segmentIndex];
@@ -235,16 +242,7 @@ public class CSurfaceViewSpectrogram extends SurfaceView implements SurfaceHolde
                 for (int i = 0; i < FFT_Len; i++) {
                     soundFFTMag[i] = height * 4 / 5 - soundFFTMag[i] / mx * 500;
                 }
-
-                mxIntensity = mx;
-
-                captureSpectrogram = Boolean.valueOf(true);
-
-
-                // print the maximum intensity
-                paint.setColor(Color.BLACK);
-                paint.setTextSize(30);
-                canvas.drawText("max Intensity = " + String.valueOf(mxIntensity), 100, height - 30, paint);
+                maxIntensity = mx;
 
                 // display the signal in temporal domain
                 xStart = 0;
@@ -264,23 +262,43 @@ public class CSurfaceViewSpectrogram extends SurfaceView implements SurfaceHolde
                     xStart++;
                 }
 
-
-                // display the fft results
-                int xStepSz = 1;
-                // draw the vertical axis (at DC location)
-                canvas.drawLine(FFT_Len / 2, height, FFT_Len / 2, 0, soundLinePaint3);
-                for (int i = 0; i < FFT_Len - 1; i += xStepSz) {
-                    canvas.drawLine(i / xStepSz, (int) soundFFTMag[i], i / xStepSz + 1, (int) soundFFTMag[i + 1], soundLinePaint);
-
-                    if ((i - 12) % 50 == 0) {
-                        paint.setColor(Color.BLACK);
-                        paint.setTextSize(20);
-                        canvas.drawText(Integer.toString(i - FFT_Len / 2), i, height * 7 / 8, paint);
+                // mapping values of soundFFT mag into smaller array size of 256
+                double[] mappedSoundFFT;
+                int size = FFT_Len/4;
+                mappedSoundFFT = new double[size];
+                int count = 0;
+                
+                for(int i=0;i<FFT_Len;i++){
+                    mappedSoundFFT[count] += soundFFTMag[i];
+                    if((i+1)%4==0){
+                        mappedSoundFFT[count] = mappedSoundFFT[count]/4; // compute average values within every 4 slots
+                        count++;
                     }
-
                 }
-                rectPos = (rectPos % 1150) + 1;
-            }
+                
+                // find new values of min and max intensity based on mapped array
+                minIntensity = maxIntensity = mappedSoundFFT[0];
+                for(int i=1;i<size;i++){
+                    if(mappedSoundFFT[i] > maxIntensity)
+                        maxIntensity = mappedSoundFFT[i];
+                    if(mappedSoundFFT[i] < minIntensity)
+                        minIntensity = mappedSoundFFT[i];
+                }
+                
+                int value = 0;
+                // plots the spectrum of a audio signal
+                for (int i=0;i<size-1;i++){
+                    value = (int)((mappedSoundFFT[i]-minIntensity)/(maxIntensity-minIntensity)*510);
+                    if(value <= 255){
+                        spectrogramPaint.setARGB(255, 255, value, 0);
+                    }
+                    else{
+                        spectrogramPaint.setARGB(255, 510-value,255 , 0);
+                    }
+                    canvas.drawLine(rectPos,height-100-i,rectPos,height-99-i, spectrogramPaint);
+                }
+                
+            } // end if
 
         }
 
@@ -319,6 +337,9 @@ public class CSurfaceViewSpectrogram extends SurfaceView implements SurfaceHolde
                     {
                         if (localCanvas != null)
                             doDraw(localCanvas);
+
+                        rectPos++;
+                        rectPos = rectPos % 1151;
 
                     }
                 }
